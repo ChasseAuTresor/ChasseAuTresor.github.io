@@ -2,11 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="format-detection" content="telephone=no" />
+<meta name="theme-color" content="#14698c" />
+<meta name="description" content="Chasse au trésor EVJG/EVJF — YOUINOU vs BOURDON à Douarnenez" />
 <title>YOUINOU vs BOURDON — Douarnenez</title>
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -114,7 +116,7 @@
     <span class="modal-emoji" id="modal-emoji">🎉</span>
     <h3 id="modal-title">Bravo !</h3>
     <p id="modal-text">+XX points</p>
-    <input id="modal-input" type="text" inputmode="numeric" maxlength="5" placeholder="Code à 5 chiffres" style="display:none; width:100%; padding:12px; font-size:22px; text-align:center; letter-spacing:6px; border:2px solid var(--ocean-500); border-radius:12px; margin-bottom:14px; outline:none;" />
+    <input id="modal-input" class="modal-input" type="text" inputmode="numeric" maxlength="5" placeholder="Code à 5 chiffres" style="display:none" />
     <div class="modal-actions">
       <button class="btn btn-ghost" id="modal-cancel" style="display:none">Annuler</button>
       <button class="btn btn-green" id="modal-ok">Super !</button>
@@ -130,7 +132,7 @@
 
 <!-- Photo viewer -->
 <div class="photo-viewer" id="photo-viewer">
-  <span class="close" id="photo-viewer-close">✕</span>
+  <button class="close" id="photo-viewer-close">✕</button>
   <img id="photo-viewer-img" alt="Indice" />
 </div>
 
