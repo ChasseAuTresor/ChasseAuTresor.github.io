@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="format-detection" content="telephone=no" />
+<title>YOUINOU vs BOURDON — Douarnenez</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="screen-home">
+    <div class="home-compass">🧭</div>
+    <h1 class="home-title">YOUINOU vs BOURDON</h1>
+    <p class="home-sub">Chasse au trésor • EVJG / EVJF • Douarnenez</p>
+    <button class="btn btn-primary" id="btn-start">Commencer l'aventure</button>
+    <svg class="home-wave" viewBox="0 0 1440 120" preserveAspectRatio="none" height="80">
+      <path d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z" fill="#2a91b8" opacity="0.25"/>
+      <path d="M0,80 C240,130 480,20 720,80 C960,140 1200,20 1440,80 L1440,120 L0,120 Z" fill="#14698c" opacity="0.35"/>
+    </svg>
+  </section>
+
+  <!-- ============ TEAM CHOICE ============ -->
+  <section class="screen" id="screen-team">
+    <div class="section-title">Choisis ton équipe</div>
+    <p class="hint">Le futur marié ou la future mariée choisit son camp. Le choix est sauvegardé sur cet appareil.</p>
+    <div class="team-pick">
+      <div class="team-card youinou" data-team="youinou">
+        <span class="emoji">🤬</span>
+        <div class="name">Team YOUINOU</div>
+      </div>
+      <div class="team-card bourdon" data-team="bourdon">
+        <span class="emoji">🐝</span>
+        <div class="name">Team BOURDON</div>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <button class="btn btn-green" id="btn-confirm-team" disabled>Valider mon équipe</button>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="screen" id="screen-dashboard">
+    <div class="topbar">
+      <h1>Tableau de bord</h1>
+      <span class="team-badge" id="dash-team-badge">—</span>
+    </div>
+    <div class="card">
+      <div class="dash-team">
+        <span class="emoji" id="dash-emoji">😤</span>
+        <div>
+          <div class="name" id="dash-name">Équipe</div>
+          <div class="balise-status done" id="dash-balises">0 / 10 balises</div>
+        </div>
+        <div class="score" id="dash-score">0</div>
+      </div>
+      <div class="progress"><div id="dash-progress" style="width:0%"></div></div>
+      <div class="progress-label" id="dash-progress-label">Progression : 0%</div>
+    </div>
+
+    <div class="card">
+      <h2>🏆 Classement</h2>
+      <div id="rank-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ BALISES ============ -->
+  <section class="screen" id="screen-balises">
+    <div class="topbar"><h1>🗺️ Balises</h1><span class="team-badge" id="bal-team-badge">—</span></div>
+    <p class="hint">Valide chaque balise sur place pour marquer des points. Une seule validation par équipe.</p>
+    <div id="balise-list"></div>
+  </section>
+
+  <!-- ============ INDICES (admin photos) ============ -->
+  <section class="screen" id="screen-indices">
+    <div class="topbar"><h1>📷 Indices</h1></div>
+    <p class="hint">Place tes photos indices dans le dossier <strong>images/</strong> en les nommant <strong>balise1.jpg</strong>, <strong>balise2.jpg</strong>, etc. Les joueurs les verront automatiquement dans la carte de chaque balise.</p>
+    <div class="card">
+      <h2>Photos indices</h2>
+      <div id="indice-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="screen" id="screen-settings">
+    <div class="topbar"><h1>⚙️ Réglages</h1></div>
+    <div class="card">
+      <h2>Réinitialisation</h2>
+      <p class="hint">Efface l'équipe, le score et les balises validées pour recommencer une partie.</p>
+      <button class="btn btn-ghost" id="btn-reveal-reset">Afficher la réinitialisation</button>
+      <div class="hidden-reset" id="reset-zone" style="margin-top:14px">
+        <button class="btn btn-danger" id="btn-reset">Tout réinitialiser</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav" id="nav">
+    <button data-screen="dashboard"><span class="ico">🏠</span>Accueil</button>
+    <button data-screen="balises"><span class="ico">🗺️</span>Balises</button>
+    <button data-screen="indices"><span class="ico">📷</span>Indices</button>
+    <button data-screen="settings"><span class="ico">⚙️</span>Réglages</button>
+  </nav>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <span class="modal-emoji" id="modal-emoji">🎉</span>
+    <h3 id="modal-title">Bravo !</h3>
+    <p id="modal-text">+XX points</p>
+    <input id="modal-input" type="text" inputmode="numeric" maxlength="5" placeholder="Code à 5 chiffres" style="display:none; width:100%; padding:12px; font-size:22px; text-align:center; letter-spacing:6px; border:2px solid var(--ocean-500); border-radius:12px; margin-bottom:14px; outline:none;" />
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modal-cancel" style="display:none">Annuler</button>
+      <button class="btn btn-green" id="modal-ok">Super !</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confetti layer -->
+<div class="confetti-layer" id="confetti"></div>
+
+<!-- Photo viewer -->
+<div class="photo-viewer" id="photo-viewer">
+  <span class="close" id="photo-viewer-close">✕</span>
+  <img id="photo-viewer-img" alt="Indice" />
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
