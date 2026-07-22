@@ -244,8 +244,8 @@ body {
 .balise-status { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
 .balise-status.pending { color: #a07b00; }
 .balise-status.done { color: var(--green-700); }
-.balise-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.balise-actions .btn { width: auto; flex: 1; min-width: 120px; }
+.balise-actions { display: flex; gap: 8px; flex-direction: column; }
+.balise-actions .btn { width: 100%; }
 
 /* Modal */
 .modal-backdrop {
