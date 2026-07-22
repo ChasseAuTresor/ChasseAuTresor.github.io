@@ -10,8 +10,7 @@ const REST_URL = SUPABASE_URL + "/rest/v1/validations";
 const REST_HEADERS = {
   "apikey": SUPABASE_ANON_KEY,
   "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-  "Content-Type": "application/json",
-  "Prefer": "return=representation"
+  "Content-Type": "application/json"
 };
 
 /* ---------- Local storage (team choice only) ---------- */
@@ -78,16 +77,15 @@ async function insertValidation(team, baliseId, pts) {
   });
   if (!res.ok && res.status !== 409) {
     const txt = await res.text().catch(() => "");
-    throw new Error("Insert failed: " + res.status + " " + txt);
+    throw new Error("Insert failed (" + res.status + "): " + txt);
   }
-  const data = await res.json().catch(() => []);
-  return Array.isArray(data) ? data[0] : data;
+  return null;
 }
 
 async function deleteAllValidations() {
   const res = await fetch(REST_URL + "?team=neq.__placeholder__", {
     method: "DELETE",
-    headers: { ...REST_HEADERS, "Prefer": "return=minimal" }
+    headers: { ...REST_HEADERS }
   });
   if (!res.ok) throw new Error("Delete failed: " + res.status);
 }
@@ -144,7 +142,6 @@ function showScreen(id) {
   navButtons.forEach(b => b.classList.toggle("active", b.dataset.screen === id));
   if (id === "dashboard") renderDashboard();
   if (id === "balises") renderBalises();
-  if (id === "indices") renderIndices();
   if (id === "settings") renderSettings();
   window.scrollTo(0, 0);
 }
@@ -234,7 +231,7 @@ async function renderBalises() {
       actions = `<div class="balise-status done">✓ Validée — +${b.pts} points</div>`;
     } else {
       const hintBtn = hasPhoto
-        ? `<button class="btn btn-ghost" data-hint="${b.id}">📷 Voir l'indice</button>`
+        ? `<button class="btn btn-ghost" data-hint="${b.id}">📷 Indice</button>`
         : "";
       actions = `<div class="balise-actions">${hintBtn}<button class="btn btn-green" data-validate="${b.id}">Valider la balise</button></div>`;
     }
@@ -283,45 +280,13 @@ async function validateBalise(id) {
     renderDashboard();
     bumpScore();
   } catch (e) {
-    toast("Erreur de synchronisation — réessaie");
+    toast("Erreur de sync: " + e.message);
   }
 }
 
 function bumpScore() {
   const el = document.getElementById("dash-score");
   if (el) { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
-}
-
-/* ---------- Indices (photos admin) ---------- */
-function renderIndices() {
-  const html = BALISES.map(b => {
-    const photoPath = getPhotoPath(b.id);
-    return `
-      <div class="indice-row">
-        <span class="num">${b.id}.</span>
-        <div class="info">
-          <div class="name">${b.name}</div>
-          <div class="state" data-state="${b.id}">Vérification…</div>
-        </div>
-        <img class="thumb" data-thumb="${b.id}" src="${photoPath}" alt="" style="display:none;" onerror="this.style.display='none'" />
-        <div class="thumb empty" data-thumb-empty="${b.id}">📷</div>
-      </div>`;
-  }).join("");
-  document.getElementById("indice-list").innerHTML = html;
-
-  BALISES.forEach(async b => {
-    const exists = await checkPhotoExists(getPhotoPath(b.id));
-    const stateEl = document.querySelector(`[data-state="${b.id}"]`);
-    const thumb = document.querySelector(`[data-thumb="${b.id}"]`);
-    const thumbEmpty = document.querySelector(`[data-thumb-empty="${b.id}"]`);
-    if (exists) {
-      if (stateEl) { stateEl.textContent = "✓ Photo indice présente"; stateEl.style.color = "var(--green-700)"; }
-      if (thumb) thumb.style.display = "block";
-      if (thumbEmpty) thumbEmpty.style.display = "none";
-    } else {
-      if (stateEl) { stateEl.textContent = "Aucune photo"; stateEl.style.color = "var(--ocean-700)"; }
-    }
-  });
 }
 
 /* ---------- Photo viewer ---------- */
