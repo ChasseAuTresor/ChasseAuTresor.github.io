@@ -27,16 +27,26 @@ const TEAMS = {
 
 /* ---------- Balises ---------- */
 const BALISES = [
-  { id: 1,  name: "Balise 1",  desc: "Accès à la plage des dames", pts: 10, icon: "📍", code: "14782" },
-  { id: 2,  name: "Balise 2",  desc: "Le Flimiou", pts: 10, icon: "📍", code: "25910" },
-  { id: 3,  name: "Balise 3",  desc: "Face au loup des mers", pts: 15, icon: "📍", code: "38471" },
-  { id: 4,  name: "Balise 4",  desc: "Cherche les filets Bleu.", pts: 10, icon: "📍", code: "41056" },
-  { id: 5,  name: "Balise 5",  desc: "Direction du Den Paoulig, tu trouveras", pts: 15, icon: "📍", code: "52389" },
-  { id: 6,  name: "Balise 6",  desc: "....", pts: 10, icon: "📍", code: "63104" },
-  { id: 7,  name: "Balise 7",  desc: "Visible à marée basse seulement. Courage !", pts: 20, icon: "📍", code: "74820" },
-  { id: 8,  name: "Balise 8",  desc: "Commande un 'Kouign Amann' pour débloquer l'indice.", pts: 10, icon: "📍", code: "85631" },
-  { id: 9,  name: "Balise 9",  desc: "Là où l'on réparait les bateaux en bois.", pts: 10, icon: "📍", code: "96247" },
-  { id: 10, name: "Balise 10", desc: "La dernière balise. Le coffre est ouvert !", pts: 25, icon: "📍", code: "10938" }
+  { id: 1,  name: "Balise 1",  desc: "Accès à la plage des dames", pts: 10, icon: "📍", code: "14782",
+    anecdote: "C'est sur la plage des dames que Romain et Laetitia ont partagé leur premier bain de nuit, sous un ciel étoilé. Romain avait oublié les serviettes, mais Laetitia l'a suivi dans l'eau sans hésiter !" },
+  { id: 2,  name: "Balise 2",  desc: "Le Flimiou", pts: 10, icon: "📍", code: "25910",
+    anecdote: "Au Flimiou, Romain a tenté d'apprendre à Laetitia à faire des ricochets sur l'eau. Après 47 essais, elle en a fait 5 d'un coup. Romain n'en parle toujours pas." },
+  { id: 3,  name: "Balise 3",  desc: "Face au loup des mers", pts: 15, icon: "📍", code: "38471",
+    anecdote: "Face au loup des mers, Romain a juré qu'il pêcherait un bar pour le dîner de Laetitia. Il est rentré avec un petit crabe. Laetitia l'a quand même trouvé adorable." },
+  { id: 4,  name: "Balise 4",  desc: "Cherche les filets Bleu.", pts: 10, icon: "📍", code: "41056",
+    anecdote: "Près des filets bleus, Laetitia a photographié Romain pendant 20 minutes pendant qu'il essayait de détacher son hameçon. Cette photo reste l'une de ses préférées." },
+  { id: 5,  name: "Balise 5",  desc: "Direction du Den Paoulig, tu trouveras", pts: 15, icon: "📍", code: "52389",
+    anecdote: "Au Den Paoulig, Romain s'est perdu en chemin et a refusé d'utiliser le GPS. Laetitia l'a retrouvé 45 minutes plus tard, assis sur un rocher, prétendant qu'il 'admirait la vue'." },
+  { id: 6,  name: "Balise 6",  desc: "....", pts: 10, icon: "📍", code: "63104",
+    anecdote: "Ici, Laetitia a fait la course avec Romain jusqu'au sommet. Elle a gagné. Romain prétend encore aujourd'hui qu'il l'a laissée gagner 'par galanterie'." },
+  { id: 7,  name: "Balise 7",  desc: "Visible à marée basse seulement. Courage !", pts: 20, icon: "📍", code: "74820",
+    anecdote: "À marée basse, Romain a trouvé un coquillage et l'a gardé comme souvenir. Laetitia l'a fait encadrer. Il trône désormais sur la table de chevet." },
+  { id: 8,  name: "Balise 8",  desc: "Commande un 'Kouign Amann' pour débloquer l'indice.", pts: 10, icon: "📍", code: "85631",
+    anecdote: "Romain a commandé un Kouign Amann pour Laetitia et a fini par le manger lui-même avant qu'elle ne le voie. Il a dû en racheter un deuxième, en s'excusant pendant tout le trajet." },
+  { id: 9,  name: "Balise 9",  desc: "Là où l'on réparait les bateaux en bois.", pts: 10, icon: "📍", code: "96247",
+    anecdote: "Dans l'ancien chantier naval, Romain a proposé à Laetitia de construire un bateau ensemble. Elle a répondu : 'D'accord, mais tu seras capitaine.' C'est resté leur métaphore de couple." },
+  { id: 10, name: "Balise 10", desc: "La dernière balise. Le coffre est ouvert !", pts: 25, icon: "📍", code: "10938",
+    anecdote: "Et voilà, vous avez trouvé toutes les balises ! Chaque lieu raconte un moment entre Romain et Laetitia. Aujourd'hui, ils écrivent ensemble un nouveau chapitre : leur mariage. Félicitations à eux et merci d'avoir joué !" }
 ];
 
 /* ---------- Shared state (from Supabase) ---------- */
@@ -275,7 +285,10 @@ async function validateBalise(id) {
     await insertValidation(myTeam, balise.id, balise.pts);
     await fetchValidations();
     launchConfetti();
-    showModal("🎉", "Bravo !", `+${balise.pts} points pour ${TEAMS[myTeam].name} !`);
+    const wantAnecdote = await showModal("🎉", "Bravo !", `+${balise.pts} points pour ${TEAMS[myTeam].name} !`, "Anecdotes sur Romain et Laetitia");
+    if (wantAnecdote) {
+      showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer");
+    }
     renderBalises();
     renderDashboard();
     bumpScore();
@@ -339,7 +352,7 @@ function _setModal(emoji, title, text, okLabel, showInput, showCancel, placehold
   return new Promise(r => { modalResolve = r; });
 }
 
-function showModal(emoji, title, text) { return _setModal(emoji, title, text, "Super !", false, false); }
+function showModal(emoji, title, text, okLabel) { return _setModal(emoji, title, text, okLabel || "Super !", false, false); }
 function confirmModal(text) { return _setModal("⚠️", "Confirmer", text, "Oui", false, true); }
 function promptModal(emoji, title, text, placeholder) { return _setModal(emoji, title, text, "Valider", true, true, placeholder); }
 
