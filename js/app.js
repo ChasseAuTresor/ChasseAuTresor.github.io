@@ -4,8 +4,8 @@
    ========================================================= */
 
 /* ---------- Config ---------- */
-const SUPABASE_URL = "https://0ec90b57d6e95fcbda19832f.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw";
+const SUPABASE_URL = "https://nuszfqmcdfmsskybhuqd.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51c3pmcW1jZGZtc3NreWJodXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MTMzODUsImV4cCI6MjEwMDI4OTM4NX0.z5OtZ_3N5y7wHgkkJRKw6sVtVQTAk5X-P9UGJIdGkGI";
 const REST_URL = SUPABASE_URL + "/rest/v1/validations";
 const REST_HEADERS = {
   "apikey": SUPABASE_ANON_KEY,
