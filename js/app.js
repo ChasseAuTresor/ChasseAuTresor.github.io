@@ -28,8 +28,7 @@ const TEAMS = {
 /* ---------- Balises ---------- */
 const BALISES = [
   { id: 1,  name: "Balise 1",  desc: "Les débuts", pts: 10, icon: "📍", code: "14782",
-    anecdote: "Appartement de Romain où on s'est fait pas mal de soirées. L'appartement craignait un peu,il y avait pas mal de trafic de drogue. Un jour j'étais toute seule, je n'ai pas pu descendre de l'appart, il y avait deux gars à se prendre la tête dans le hall qui se menaçait avec un couteau...😬
-" },
+    anecdote: "Appartement de Romain où on s'est fait pas mal de soirées. L'appartement craignait un peu,il y avait pas mal de trafic de drogue. Un jour j'étais toute seule, je n'ai pas pu descendre de l'appart, il y avait deux gars à se prendre la tête dans le hall qui se menaçait avec un couteau...😬" },
   { id: 2,  name: "Balise 2",  desc: "Rien à voir avec le lieu", pts: 10, icon: "📍", code: "25910",
     anecdote: "notre 1ère rencontre, 1er baiser c'était au Mylor, où je fêtais mes 25 ans. Le lendemain il est venu sonner chez moi en sandales short et veste en cuir 😆 , en plus j'avais grand repas familial. Il savait où j'habitais, son meilleur pote c'était mon voisin. On c'était déjà croisé plusieurs fois auparavant." },
   { id: 3,  name: "Balise 3",  desc: "Insolite...", pts: 15, icon: "📍", code: "38471",
