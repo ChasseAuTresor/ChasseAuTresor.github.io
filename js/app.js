@@ -27,8 +27,9 @@ const TEAMS = {
 
 /* ---------- Balises ---------- */
 const BALISES = [
-  { id: 1,  name: "Balise 1",  desc: "Accès à la plage des dames", pts: 10, icon: "📍", code: "14782",
-    anecdote: "C'est sur la plage des dames que Romain et Laetitia ont partagé leur premier bain de nuit, sous un ciel étoilé. Romain avait oublié les serviettes, mais Laetitia l'a suivi dans l'eau sans hésiter !" },
+  { id: 1,  name: "Balise 1",  desc: "Les débuts", pts: 10, icon: "📍", code: "14782",
+    anecdote: "Appartement de Romain où on s'est fait pas mal de soirées. L'appartement craignait un peu,il y avait pas mal de trafic de drogue. Un jour j'étais toute seule, je n'ai pas pu descendre de l'appart, il y avait deux gars à se prendre la tête dans le hall qui se menaçait avec un couteau...😬
+" },
   { id: 2,  name: "Balise 2",  desc: "Le Flimiou", pts: 10, icon: "📍", code: "25910",
     anecdote: "Au Flimiou, Romain a tenté d'apprendre à Laetitia à faire des ricochets sur l'eau. Après 47 essais, elle en a fait 5 d'un coup. Romain n'en parle toujours pas." },
   { id: 3,  name: "Balise 3",  desc: "Face au loup des mers", pts: 15, icon: "📍", code: "38471",
