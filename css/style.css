@@ -272,30 +272,6 @@ body {
 }
 .modal-input:focus { border-color: var(--ocean-700); }
 
-/* Modal photo gallery */
-.modal-photos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-.modal-photos:empty { display: none; }
-.modal-photos .modal-photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 10px;
-  cursor: zoom-in;
-  box-shadow: var(--shadow-sm);
-  transition: transform .15s ease;
-  background: var(--sand-200);
-}
-.modal-photos .modal-photo:hover { transform: scale(1.03); }
-.modal-photos .modal-photo:first-child:nth-last-child(1) {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 9;
-}
-
 /* Toast */
 .toast {
   position: fixed; bottom: 90px; left: 50%;
