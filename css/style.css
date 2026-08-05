@@ -66,7 +66,9 @@ body {
   }
   .app {
     border-radius: 28px;
+    overflow: hidden;
     min-height: auto;
+    height: auto;
     box-shadow: 0 20px 60px rgba(11,61,92,0.22);
   }
 }
@@ -78,7 +80,7 @@ body {
 
 /* Screens */
 .screen { display: none; padding: 20px 18px; animation: fadeIn .35s ease; }
-.screen.active { display: block; flex: 1 1 0; -webkit-overflow-scrolling: touch; }
+.screen.active { display: block; flex: 1 1 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
