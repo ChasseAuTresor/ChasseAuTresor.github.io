@@ -36,14 +36,7 @@ const BALISES = [
   { id: 4,  name: "Balise 4",  desc: "l'adolescence", pts: 10, icon: "📍", code: "41056",
     anecdote: "Avant de se connaître, ils avaient déjà un point commun sans vraiment le savoir : ils ont tous les deux été a Saint-Blaise. À l'époque, leurs chemins ne se sont pourtant jamais croisés… ou du moins, ils ne s'en souviennent pas. Il aura fallu attendre quelques années de plus pour que leurs routes se rejoignent enfin et que leur histoire commence. Un joli clin d'œil au destin, qui avait déjà semé quelques indices bien avant leur première rencontre." },
   { id: 5,  name: "Balise 5",  desc: "Direction du bolomig, tu trouveras", pts: 15, icon: "📍", code: "52389",
-    anecdote: "Cette petite statue en a vu passer du monde au fil des Gras ! Chaque année, il assiste au défilé des costumes les plus farfelus, aux chorégraphies improvisées et à quelques retours un peu hésitants en fin de soirée. S'il pouvait parler, il aurait certainement des centaines d'anecdotes à raconter… ah ben tiens voici quelques photos",
-    photos: [
-      "https://images.pexels.com/photos/36743804/pexels-photo-36743804.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-      "https://images.pexels.com/photos/11421472/pexels-photo-11421472.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-      "https://images.pexels.com/photos/335691/pexels-photo-335691.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-      "https://images.pexels.com/photos/15750871/pexels-photo-15750871.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-      "https://images.pexels.com/photos/20812188/pexels-photo-20812188.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-    ] },
+    anecdote: "Cette petite statue en a vu passer du monde au fil des Gras ! Chaque année, il assiste au défilé des costumes les plus farfelus, aux chorégraphies improvisées et à quelques retours un peu hésitants en fin de soirée. S'il pouvait parler, il aurait certainement des centaines d'anecdotes à raconter… ah ben tiens voici quelques photos" },
   { id: 6,  name: "Balise 6",  desc: "à la pêche au moule", pts: 10, icon: "📍", code: "63104",
     anecdote: "Bon ben là... vas y trouver des idées, aparement Mr YOUINOU R (pout ne pas confondre avec Christophe) était amateur de pêche, donc j'espèe que vous avez bien marché pour cette anecdote pas très utile, je sais même pas si c'était ici, il faudra demandé à l'interressé... mais bravo pour la balise trouvée" },
   { id: 7,  name: "Balise 7",  desc: "....", pts: 20, icon: "📍", code: "74820",
@@ -294,7 +287,7 @@ async function validateBalise(id) {
     launchConfetti();
     const wantAnecdote = await showModal("🎉", "Bravo !", `+${balise.pts} points pour ${TEAMS[myTeam].name} !`, "Anecdotes sur Romain et Laetitia");
     if (wantAnecdote) {
-      showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer", balise.photos);
+      showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer");
     }
     renderBalises();
     renderDashboard();
@@ -345,24 +338,11 @@ const modalInput = document.getElementById("modal-input");
 const modalCancel = document.getElementById("modal-cancel");
 let modalResolve = null;
 
-function _setModal(emoji, title, text, okLabel, showInput, showCancel, placeholder, photos) {
+function _setModal(emoji, title, text, okLabel, showInput, showCancel, placeholder) {
   document.getElementById("modal-emoji").textContent = emoji;
   document.getElementById("modal-title").textContent = title;
   document.getElementById("modal-text").textContent = text;
   document.getElementById("modal-ok").textContent = okLabel;
-  const photosContainer = document.getElementById("modal-photos");
-  photosContainer.innerHTML = "";
-  if (photos && photos.length) {
-    photos.forEach((src, i) => {
-      const img = document.createElement("img");
-      img.src = src;
-      img.className = "modal-photo";
-      img.loading = "lazy";
-      img.alt = "Photo " + (i + 1);
-      img.addEventListener("click", () => openPhotoViewer(src));
-      photosContainer.appendChild(img);
-    });
-  }
   modalInput.style.display = showInput ? "block" : "none";
   modalInput.value = "";
   modalInput.placeholder = placeholder || "";
@@ -372,7 +352,7 @@ function _setModal(emoji, title, text, okLabel, showInput, showCancel, placehold
   return new Promise(r => { modalResolve = r; });
 }
 
-function showModal(emoji, title, text, okLabel, photos) { return _setModal(emoji, title, text, okLabel || "Super !", false, false, null, photos); }
+function showModal(emoji, title, text, okLabel) { return _setModal(emoji, title, text, okLabel || "Super !", false, false); }
 function confirmModal(text) { return _setModal("⚠️", "Confirmer", text, "Oui", false, true); }
 function promptModal(emoji, title, text, placeholder) { return _setModal(emoji, title, text, "Valider", true, true, placeholder); }
 
