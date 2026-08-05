@@ -39,9 +39,6 @@ const BALISES = [
     anecdote: "Cette petite statue en a vu passer du monde au fil des Gras ! Chaque année, il assiste au défilé des costumes les plus farfelus, aux chorégraphies improvisées et à quelques retours un peu hésitants en fin de soirée. S'il pouvait parler, il aurait certainement des centaines d'anecdotes à raconter… ah ben tiens voici quelques photos",
     photos: [
       "images/balise5/image1.jpg",
-      "images/balise5/image2.jpg",
-      "images/balise5/image3.jpg",
-      "images/balise5/image4.jpg"
     ] },
   { id: 6,  name: "Balise 6",  desc: "à la pêche au moule", pts: 10, icon: "📍", code: "63104",
     anecdote: "Bon ben là... vas y trouver des idées, aparement Mr YOUINOU R (pout ne pas confondre avec Christophe) était amateur de pêche, donc j'espèe que vous avez bien marché pour cette anecdote pas très utile, je sais même pas si c'était ici, il faudra demandé à l'interressé... mais bravo pour la balise trouvée" },
