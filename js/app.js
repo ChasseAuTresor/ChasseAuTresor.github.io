@@ -28,25 +28,25 @@ const TEAMS = {
 /* ---------- Balises ---------- */
 const BALISES = [
   { id: 1,  name: "Balise 1",  desc: "Les débuts", pts: 10, icon: "📍", code: "14782",
-    anecdote: "Appartement de Romain où on s'est fait pas mal de soirées. L'appartement craignait un peu,il y avait pas mal de trafic de drogue. Un jour j'étais toute seule, je n'ai pas pu descendre de l'appart, il y avait deux gars à se prendre la tête dans le hall qui se menaçait avec un couteau...😬" },
+    anecdote: "L'appartement de Romain a été le théâtre de nombreuses soirées mémorables entre amis. L'immeuble, lui, avait un peu moins de charme… Il y avait régulièrement du trafic dans le quartier. Un jour, alors que Laetitia était seule dans l'appartement, impossible de sortir : deux hommes étaient en train de se disputer dans le hall en se menaçant avec un couteau. 😬 Un souvenir un peu insolite… dont on préfère rire aujourd'hui !" },
   { id: 2,  name: "Balise 2",  desc: "Rien à voir avec le lieu", pts: 10, icon: "📍", code: "25910",
     anecdote: "Comme ennoncé, rien à voir avec le lieu mais juste l'anecdote. Notre première rencontre, notre premier baiser… c'était au Mylor, le soir où je fêtais mes 25 ans. Une soirée que je n'oublierai jamais, sans imaginer une seconde qu'elle marquerait le début de notre histoire. Le lendemain, alors que je me préparais à accueillir toute ma famille pour un grand repas, voilà qu'il débarque chez moi. Il sonne à la porte, habillé en short, en sandales et avec une veste en cuir… un look plutôt inattendu qui me fait encore sourire aujourd'hui ! Le timing était parfait… ou presque. 😆.En réalité, il savait déjà où j'habitais, puisque son meilleur ami était tout simplement mon voisin. Ce qui est drôle, c'est qu'avant cette fameuse soirée, on s'était déjà croisés plusieurs fois sans vraiment se connaître. Comme quoi, il fallait juste le bon moment pour que nos chemins se croisent vraiment." },
   { id: 3,  name: "Balise 3",  desc: "Histoire Insolite...", pts: 15, icon: "📍", code: "38471",
     anecdote: "Notre premier restaurant, c'était à L'Insolite. Un moment qu'on imaginait sûrement un peu romantique… jusqu'à ce qu'il commande un demi-homard ! Pour l'occasion, le serveur lui apporte un immense bavoir à enfiler avant de commencer son repas. Autant dire que pour un premier resto en amoureux, ce n'était pas vraiment le look le plus glamour ! 😆 On a éclaté de rire en le voyant avec son bavoir, et cette scène est restée gravée dans nos souvenirs. Finalement, ce sont souvent ces petits moments imprévus et un peu ridicules qui rendent une histoire encore plus belle." },
-  { id: 4,  name: "Balise 4",  desc: "Cherche les filets Bleu.", pts: 10, icon: "📍", code: "41056",
-    anecdote: "Près des filets bleus, Laetitia a photographié Romain pendant 20 minutes pendant qu'il essayait de détacher son hameçon. Cette photo reste l'une de ses préférées." },
-  { id: 5,  name: "Balise 5",  desc: "Direction du Den Paoulig, tu trouveras", pts: 15, icon: "📍", code: "52389",
-    anecdote: "Au Den Paoulig, Romain s'est perdu en chemin et a refusé d'utiliser le GPS. Laetitia l'a retrouvé 45 minutes plus tard, assis sur un rocher, prétendant qu'il 'admirait la vue'." },
-  { id: 6,  name: "Balise 6",  desc: "....", pts: 10, icon: "📍", code: "63104",
-    anecdote: "Ici, Laetitia a fait la course avec Romain jusqu'au sommet. Elle a gagné. Romain prétend encore aujourd'hui qu'il l'a laissée gagner 'par galanterie'." },
-  { id: 7,  name: "Balise 7",  desc: "Visible à marée basse seulement. Courage !", pts: 20, icon: "📍", code: "74820",
-    anecdote: "À marée basse, Romain a trouvé un coquillage et l'a gardé comme souvenir. Laetitia l'a fait encadrer. Il trône désormais sur la table de chevet." },
-  { id: 8,  name: "Balise 8",  desc: "Commande un 'Kouign Amann' pour débloquer l'indice.", pts: 10, icon: "📍", code: "85631",
-    anecdote: "Romain a commandé un Kouign Amann pour Laetitia et a fini par le manger lui-même avant qu'elle ne le voie. Il a dû en racheter un deuxième, en s'excusant pendant tout le trajet." },
-  { id: 9,  name: "Balise 9",  desc: "Là où l'on réparait les bateaux en bois.", pts: 10, icon: "📍", code: "96247",
-    anecdote: "Dans l'ancien chantier naval, Romain a proposé à Laetitia de construire un bateau ensemble. Elle a répondu : 'D'accord, mais tu seras capitaine.' C'est resté leur métaphore de couple." },
-  { id: 10, name: "Balise 10", desc: "La dernière balise. Le coffre est ouvert !", pts: 25, icon: "📍", code: "10938",
-    anecdote: "Et voilà, vous avez trouvé toutes les balises ! Chaque lieu raconte un moment entre Romain et Laetitia. Aujourd'hui, ils écrivent ensemble un nouveau chapitre : leur mariage. Félicitations à eux et merci d'avoir joué !" }
+  { id: 4,  name: "Balise 4",  desc: "l'adolescence", pts: 10, icon: "📍", code: "41056",
+    anecdote: "Avant de se connaître, ils avaient déjà un point commun sans vraiment le savoir : ils ont tous les deux été a Saint-Blaise. À l'époque, leurs chemins ne se sont pourtant jamais croisés… ou du moins, ils ne s'en souviennent pas. Il aura fallu attendre quelques années de plus pour que leurs routes se rejoignent enfin et que leur histoire commence. Un joli clin d'œil au destin, qui avait déjà semé quelques indices bien avant leur première rencontre." },
+  { id: 5,  name: "Balise 5",  desc: "Direction du bolomig, tu trouveras", pts: 15, icon: "📍", code: "52389",
+    anecdote: "Cette petite statue en a vu passer du monde au fil des Gras ! Chaque année, il assiste au défilé des costumes les plus farfelus, aux chorégraphies improvisées et à quelques retours un peu hésitants en fin de soirée. S'il pouvait parler, il aurait certainement des centaines d'anecdotes à raconter… ah ben tiens voici quelques photos" },
+  { id: 6,  name: "Balise 6",  desc: "à la pêche au moule", pts: 10, icon: "📍", code: "63104",
+    anecdote: "Bon ben là... vas y trouver des idées, aparement Mr YOUINOU R (pout ne pas confondre avec Christophe) était amateur de pêche, donc j'espèe que vous avez bien marché pour cette anecdote pas très utile, je sais même pas si c'était ici, il faudra demandé à l'interressé... mais bravo pour la balise trouvée" },
+  { id: 7,  name: "Balise 7",  desc: "....", pts: 20, icon: "📍", code: "74820",
+    anecdote: "à remplir " },
+  { id: 8,  name: "Balise 8",  desc: "....", pts: 10, icon: "📍", code: "85631",
+    anecdote: "à remplir " },
+  { id: 9,  name: "Balise 9",  desc: "....", pts: 10, icon: "📍", code: "96247",
+    anecdote: "à remplir " },
+  { id: 10, name: "Balise 10", desc: "....", pts: 25, icon: "📍", code: "10938",
+    anecdote: "à remplir " }
 ];
 
 /* ---------- Shared state (from Supabase) ---------- */
