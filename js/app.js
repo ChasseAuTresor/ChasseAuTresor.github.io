@@ -38,10 +38,11 @@ const BALISES = [
   { id: 5,  name: "Balise 5",  desc: "Direction du bolomig, tu trouveras", pts: 15, icon: "📍", code: "52389",
     anecdote: "Cette petite statue en a vu passer du monde au fil des Gras ! Chaque année, il assiste au défilé des costumes les plus farfelus, aux chorégraphies improvisées et à quelques retours un peu hésitants en fin de soirée. S'il pouvait parler, il aurait certainement des centaines d'anecdotes à raconter… ah ben tiens voici quelques photos",
     photos: [
-      "images/balise5/image1.jpg",
-      "images/balise5/image2.jpg",
-      "images/balise5/image3.jpg",
-      "images/balise5/image4.jpg"
+      "https://images.pexels.com/photos/36743804/pexels-photo-36743804.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "https://images.pexels.com/photos/11421472/pexels-photo-11421472.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "https://images.pexels.com/photos/335691/pexels-photo-335691.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "https://images.pexels.com/photos/15750871/pexels-photo-15750871.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "https://images.pexels.com/photos/20812188/pexels-photo-20812188.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
     ] },
   { id: 6,  name: "Balise 6",  desc: "à la pêche au moule", pts: 10, icon: "📍", code: "63104",
     anecdote: "Bon ben là... vas y trouver des idées, aparement Mr YOUINOU R (pout ne pas confondre avec Christophe) était amateur de pêche, donc j'espèe que vous avez bien marché pour cette anecdote pas très utile, je sais même pas si c'était ici, il faudra demandé à l'interressé... mais bravo pour la balise trouvée" },
@@ -138,14 +139,13 @@ function getPhotoPath(baliseId) {
   return "images/balise" + baliseId + ".jpg";
 }
 
-function checkPhotoExists(path) {
-  return new Promise(resolve => {
-    let done = false;
-    const timer = setTimeout(() => { if (!done) { done = true; resolve(false); } }, 1500);
-    fetch(path, { method: "HEAD" })
-      .then(res => { if (!done) { done = true; clearTimeout(timer); resolve(res.ok); } })
-      .catch(() => { if (!done) { done = true; clearTimeout(timer); resolve(false); } });
-  });
+async function checkPhotoExists(path) {
+  try {
+    const res = await fetch(path, { method: "HEAD" });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
 }
 
 /* ---------- Navigation ---------- */
@@ -229,20 +229,28 @@ function renderDashboard() {
 }
 
 /* ---------- Balises ---------- */
-function renderBalises() {
+async function renderBalises() {
   const myTeam = getLocalTeam();
   if (!myTeam) return;
   const t = TEAMS[myTeam];
   document.getElementById("bal-team-badge").textContent = t.emoji + " " + t.name;
   const validatedIds = teamValidatedIds(myTeam);
 
+  const photoChecks = await Promise.all(BALISES.map(b => checkPhotoExists(getPhotoPath(b.id))));
+  const photoMap = {};
+  BALISES.forEach((b, i) => { if (photoChecks[i]) photoMap[b.id] = true; });
+
   const html = BALISES.map(b => {
     const done = validatedIds.includes(b.id);
+    const hasPhoto = photoMap[b.id];
     let actions;
     if (done) {
       actions = `<div class="balise-status done">✓ Validée — +${b.pts} points</div>`;
     } else {
-      actions = `<div class="balise-actions"><button class="btn btn-ghost" data-hint="${b.id}" style="display:none">📷 Indice</button><button class="btn btn-green" data-validate="${b.id}">Valider la balise</button></div>`;
+      const hintBtn = hasPhoto
+        ? `<button class="btn btn-ghost" data-hint="${b.id}">📷 Indice</button>`
+        : "";
+      actions = `<div class="balise-actions">${hintBtn}<button class="btn btn-green" data-validate="${b.id}">Valider la balise</button></div>`;
     }
     return `
       <div class="balise ${done ? 'done' : ''}" data-id="${b.id}">
@@ -257,21 +265,15 @@ function renderBalises() {
   }).join("");
   document.getElementById("balise-list").innerHTML = html;
 
-  BALISES.forEach(b => {
-    checkPhotoExists(getPhotoPath(b.id)).then(exists => {
-      if (!exists) return;
-      const btn = document.querySelector(`[data-hint="${b.id}"]`);
-      if (btn && !validatedIds.includes(b.id)) btn.style.display = "";
+  document.querySelectorAll("[data-validate]").forEach(btn => {
+    btn.addEventListener("click", () => validateBalise(parseInt(btn.dataset.validate)));
+  });
+  document.querySelectorAll("[data-hint]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      openPhotoViewer(getPhotoPath(parseInt(btn.dataset.hint)));
     });
   });
 }
-
-document.getElementById("balise-list").addEventListener("click", e => {
-  const validateBtn = e.target.closest("[data-validate]");
-  if (validateBtn) { validateBalise(parseInt(validateBtn.dataset.validate)); return; }
-  const hintBtn = e.target.closest("[data-hint]");
-  if (hintBtn) { openPhotoViewer(getPhotoPath(parseInt(hintBtn.dataset.hint))); return; }
-});
 
 async function validateBalise(id) {
   const myTeam = getLocalTeam();
@@ -318,8 +320,6 @@ document.getElementById("photo-viewer-close").addEventListener("click", () => ph
 photoViewer.addEventListener("click", e => { if (e.target === photoViewer) photoViewer.classList.remove("show"); });
 
 /* ---------- Settings ---------- */
-function renderSettings() {}
-
 document.getElementById("btn-reveal-reset").addEventListener("click", () => {
   document.getElementById("reset-zone").classList.toggle("hidden-reset");
 });
@@ -419,12 +419,14 @@ function launchConfetti() {
 
 /* ---------- Init ---------- */
 async function init() {
-  showScreen(getLocalTeam() ? "dashboard" : "home");
-  fetchValidations().then(() => {
-    if (currentScreen === "dashboard") renderDashboard();
-    if (currentScreen === "balises") renderBalises();
-  });
+  await fetchValidations();
   startPolling();
+
+  if (getLocalTeam()) {
+    showScreen("dashboard");
+  } else {
+    showScreen("home");
+  }
 }
 
 init();
