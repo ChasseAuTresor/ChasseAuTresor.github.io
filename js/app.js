@@ -228,28 +228,20 @@ function renderDashboard() {
 }
 
 /* ---------- Balises ---------- */
-async function renderBalises() {
+function renderBalises() {
   const myTeam = getLocalTeam();
   if (!myTeam) return;
   const t = TEAMS[myTeam];
   document.getElementById("bal-team-badge").textContent = t.emoji + " " + t.name;
   const validatedIds = teamValidatedIds(myTeam);
 
-  const photoChecks = await Promise.all(BALISES.map(b => checkPhotoExists(getPhotoPath(b.id))));
-  const photoMap = {};
-  BALISES.forEach((b, i) => { if (photoChecks[i]) photoMap[b.id] = true; });
-
   const html = BALISES.map(b => {
     const done = validatedIds.includes(b.id);
-    const hasPhoto = photoMap[b.id];
     let actions;
     if (done) {
       actions = `<div class="balise-actions"><div class="balise-status done">✓ Validée — +${b.pts} points</div><button class="btn btn-ghost" data-anecdote="${b.id}">📖 Voir l'anecdote</button></div>`;
     } else {
-      const hintBtn = hasPhoto
-        ? `<button class="btn btn-ghost" data-hint="${b.id}">📷 Indice</button>`
-        : "";
-      actions = `<div class="balise-actions">${hintBtn}<button class="btn btn-green" data-validate="${b.id}">Valider la balise</button></div>`;
+      actions = `<div class="balise-actions"><button class="btn btn-green" data-validate="${b.id}">Valider la balise</button></div>`;
     }
     return `
       <div class="balise ${done ? 'done' : ''}" data-id="${b.id}">
@@ -267,15 +259,25 @@ async function renderBalises() {
   document.querySelectorAll("[data-validate]").forEach(btn => {
     btn.addEventListener("click", () => validateBalise(parseInt(btn.dataset.validate)));
   });
-  document.querySelectorAll("[data-hint]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      openPhotoViewer(getPhotoPath(parseInt(btn.dataset.hint)));
-    });
-  });
   document.querySelectorAll("[data-anecdote]").forEach(btn => {
     btn.addEventListener("click", () => {
       const balise = BALISES.find(b => b.id === parseInt(btn.dataset.anecdote));
       if (balise) showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer", balise.photos);
+    });
+  });
+
+  BALISES.forEach(b => {
+    if (validatedIds.includes(b.id)) return;
+    checkPhotoExists(getPhotoPath(b.id)).then(exists => {
+      if (!exists) return;
+      const card = document.querySelector(`.balise[data-id="${b.id}"] .balise-actions`);
+      if (!card) return;
+      const hintBtn = document.createElement("button");
+      hintBtn.className = "btn btn-ghost";
+      hintBtn.dataset.hint = b.id;
+      hintBtn.textContent = "📷 Indice";
+      hintBtn.addEventListener("click", () => openPhotoViewer(getPhotoPath(b.id)));
+      card.insertBefore(hintBtn, card.firstChild);
     });
   });
 }
@@ -325,6 +327,11 @@ document.getElementById("photo-viewer-close").addEventListener("click", () => ph
 photoViewer.addEventListener("click", e => { if (e.target === photoViewer) photoViewer.classList.remove("show"); });
 
 /* ---------- Settings ---------- */
+function renderSettings() {
+  const myTeam = getLocalTeam();
+  if (!myTeam) return;
+}
+
 document.getElementById("btn-reveal-reset").addEventListener("click", () => {
   document.getElementById("reset-zone").classList.toggle("hidden-reset");
 });
