@@ -63,12 +63,16 @@ body {
 @media (min-width: 768px) {
   body {
     padding: 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .app {
     border-radius: 28px;
     overflow: hidden;
     min-height: auto;
-    height: auto;
+    height: min(820px, calc(100vh - 48px));
+    height: min(820px, calc(100dvh - 48px));
     box-shadow: 0 20px 60px rgba(11,61,92,0.22);
   }
 }
@@ -166,7 +170,8 @@ body {
 /* Home */
 #screen-home.active {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 30px 24px; min-height: 60vh;
+  text-align: center; padding: 30px 24px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .home-compass { font-size: 64px; animation: float 4s ease-in-out infinite; }
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -271,6 +276,30 @@ body {
   transition: border-color .2s ease;
 }
 .modal-input:focus { border-color: var(--ocean-700); }
+
+/* Modal photo gallery */
+.modal-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.modal-photos:empty { display: none; }
+.modal-photos .modal-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: zoom-in;
+  box-shadow: var(--shadow-sm);
+  transition: transform .15s ease;
+  background: var(--sand-200);
+}
+.modal-photos .modal-photo:hover { transform: scale(1.03); }
+.modal-photos .modal-photo:first-child:nth-last-child(1) {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 9;
+}
 
 /* Toast */
 .toast {
