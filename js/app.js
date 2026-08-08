@@ -337,8 +337,12 @@ document.getElementById("btn-reveal-reset").addEventListener("click", () => {
 });
 
 document.getElementById("btn-reset").addEventListener("click", async () => {
-  const ok = await confirmModal("Tout réinitialiser ? Toutes les validations des deux équipes seront effacées.");
-  if (!ok) return;
+  const code = await promptModal("🔒", "Réinitialisation", "Entrez le code pour confirmer la réinitialisation.", "Code à 4 chiffres");
+  if (code === null) return;
+  if (code !== "0306") {
+    toast("Code incorrect");
+    return;
+  }
   try {
     await deleteAllValidations();
     await fetchValidations();
