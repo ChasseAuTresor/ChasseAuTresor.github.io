@@ -37,10 +37,10 @@ body {
     radial-gradient(1200px 600px at 50% -10%, #bfe3ef 0%, transparent 60%),
     linear-gradient(180deg, var(--sand-100) 0%, var(--sand-200) 100%);
   background-attachment: fixed;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  min-height: 100dvh;
-  overflow-x: hidden;
+  height: 100vh;
+  height: -webkit-fill-available;
+  height: 100dvh;
+  overflow: hidden;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }
@@ -51,13 +51,14 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  min-height: 100dvh;
+  height: 100vh;
+  height: -webkit-fill-available;
+  height: 100dvh;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
   position: relative;
   box-shadow: 0 0 40px rgba(11,61,92,0.08);
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -70,7 +71,6 @@ body {
   .app {
     border-radius: 28px;
     overflow: hidden;
-    min-height: auto;
     height: min(820px, calc(100vh - 48px));
     height: min(820px, calc(100dvh - 48px));
     box-shadow: 0 20px 60px rgba(11,61,92,0.22);
@@ -171,7 +171,7 @@ body {
 #screen-home.active {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: 30px 24px;
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 .home-compass { font-size: 64px; animation: float 4s ease-in-out infinite; }
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
