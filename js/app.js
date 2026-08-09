@@ -48,7 +48,7 @@ const BALISES = [
   { id: 7,  name: "Balise 7",  desc: "des études...", pts: 20, icon: "📍", code: "74820",
     anecdote: "Ici, vous trouverez les endroits où Laetitia a passé quelques années de sa vie... voili voilou... vous vous rendrez compte que je n'ai pas beaucoup d'histoire mais demander à vos capitaines, peut être qu'ils auront plus de souvenirs" },
   { id: 8,  name: "Balise 8",  desc: "Y a t'il un chevalier dans la place", pts: 10, icon: "📍", code: "85631",
-    anecdote: "Bon, là, c’est juste pour le fun ! mais si tu réponds bien tu as les points" },
+    anecdote: "Bon, là, c’est juste pour le fun ! T'inquiète pas, tu as les points" },
   { id: 9,  name: "Balise exemple",  desc: "balise exemple", pts: 0, icon: "📍", code: "12345",
     anecdote: "Youhou, c'est gagné, mais pas de points, c'est un exemple" }
 ];
