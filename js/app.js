@@ -48,11 +48,9 @@ const BALISES = [
   { id: 7,  name: "Balise 7",  desc: "des études...", pts: 20, icon: "📍", code: "74820",
     anecdote: "Ici, vous trouverez les endroits où Laetitia a passé quelques années de sa vie... voili voilou... vous vous rendrez compte que je n'ai pas beaucoup d'histoire mais demander à vos capitaines, peut être qu'ils auront plus de souvenirs" },
   { id: 8,  name: "Balise 8",  desc: "Y a t'il un chevalier dans la place", pts: 10, icon: "📍", code: "85631",
-    anecdote: "Bon, là, c’est juste pour le fun ! Une petite photo qui rappelle une époque où notre collègue se transformait en véritable chevalier pour quelques combats. Alors, prêt à repartir sauver Dame Laeti ?" },
-  { id: 9,  name: "Balise 9",  desc: "....", pts: 10, icon: "📍", code: "96247",
-    anecdote: "à remplir " },
-  { id: 10, name: "Balise 10", desc: "....", pts: 25, icon: "📍", code: "10938",
-    anecdote: "à remplir " }
+    anecdote: "Bon, là, c’est juste pour le fun ! mais si tu réponds bien tu as les points" },
+  { id: 9,  name: "Balise exemple",  desc: "balise exemple", pts: 0, icon: "📍", code: "12345",
+    anecdote: "Youhou, c'est gagné, mais pas de points, c'est un exemple" }
 ];
 
 /* ---------- Shared state (from Supabase) ---------- */
@@ -203,9 +201,10 @@ function renderDashboard() {
 
   const myTeam = getLocalTeam();
   const validated = teamValidatedCount(myTeam);
-  document.getElementById("dash-balises").textContent = validated + " / 10 balises";
+  const totalBalises = BALISES.length;
+  document.getElementById("dash-balises").textContent = validated + " / " + totalBalises + " balises";
   document.getElementById("dash-score").textContent = teamScore(myTeam);
-  const pct = Math.round(validated / 10 * 100);
+  const pct = Math.round(validated / totalBalises * 100);
   document.getElementById("dash-progress").style.width = pct + "%";
   document.getElementById("dash-progress-label").textContent = "Progression : " + pct + "%";
 
@@ -299,6 +298,15 @@ async function validateBalise(id) {
     await insertValidation(myTeam, balise.id, balise.pts);
     await fetchValidations();
     launchConfetti();
+
+    if (balise.id === 8) {
+      await showBalise8Quiz();
+      renderBalises();
+      renderDashboard();
+      bumpScore();
+      return;
+    }
+
     const wantAnecdote = await showModal("🎉", "Bravo !", `+${balise.pts} points pour ${TEAMS[myTeam].name} !`, "Anecdotes sur Romain et Laetitia");
     if (wantAnecdote) {
       showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer", balise.photos);
@@ -309,6 +317,80 @@ async function validateBalise(id) {
   } catch (e) {
     toast("Erreur de sync: " + e.message);
   }
+}
+
+/* ---------- Balise 8 quiz ---------- */
+function showBalise8Quiz() {
+  return new Promise(resolve => {
+    const overlay = document.createElement("div");
+    overlay.className = "quiz-overlay";
+
+    const photo = document.createElement("img");
+    photo.src = "images/balise8/image1.jpg";
+    photo.className = "quiz-photo";
+    photo.alt = "Qui est sur la photo ?";
+    overlay.appendChild(photo);
+
+    const question = document.createElement("div");
+    question.className = "quiz-question";
+    question.textContent = "Qui est sur la photo ? (vous avez 10s pour répondre)";
+    overlay.appendChild(question);
+
+    const timerBar = document.createElement("div");
+    timerBar.className = "quiz-timer-bar";
+    const timerFill = document.createElement("div");
+    timerFill.className = "quiz-timer-fill";
+    timerBar.appendChild(timerFill);
+    overlay.appendChild(timerBar);
+
+    const btnContainer = document.createElement("div");
+    btnContainer.className = "quiz-buttons";
+    overlay.appendChild(btnContainer);
+
+    const answers = ["Un mec trop bizarre", "Romain", "Niamor le chelou"];
+    const buttons = [];
+
+    answers.forEach(text => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-dodge-btn";
+      btn.textContent = text;
+      btn.type = "button";
+      buttons.push(btn);
+      btnContainer.appendChild(btn);
+    });
+
+    function dodgeBtn(btn) {
+      const overlayRect = overlay.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const padding = 20;
+      const maxX = overlayRect.width - btnRect.width - padding;
+      const maxY = overlayRect.height - btnRect.height - padding;
+      const newX = padding + Math.random() * Math.max(maxX - padding, 1);
+      const newY = padding + Math.random() * Math.max(maxY - padding, 1);
+      btn.style.position = "absolute";
+      btn.style.left = newX + "px";
+      btn.style.top = newY + "px";
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener("pointerenter", () => dodgeBtn(btn));
+      btn.addEventListener("touchstart", e => { e.preventDefault(); dodgeBtn(btn); }, { passive: false });
+      btn.addEventListener("click", () => dodgeBtn(btn));
+    });
+
+    document.body.appendChild(overlay);
+
+    timerFill.style.transition = "width 10s linear";
+    requestAnimationFrame(() => { timerFill.style.width = "0%"; });
+
+    const timer = setTimeout(() => {
+      overlay.remove();
+      toast("t'inquiètes les points sont comptabilisés, tu as trouvé la balise 😉");
+      setTimeout(() => resolve(), 2600);
+    }, 10000);
+
+    overlay.dataset.timer = timer;
+  });
 }
 
 function bumpScore() {
