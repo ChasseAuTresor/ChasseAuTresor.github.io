@@ -1,418 +1,530 @@
 /* =========================================================
-   YOUINOU vs BOURDON — Chasse au trésor EVJG/EVJF
-   Theme: Koh-Lanta x Carte au trésor x Bretagne
-   Colors: Bleu océan / Beige sable / Blanc / Vert nature
-   Responsive: mobile (iOS/Android) + tablet + desktop
+   YOUINOU vs BOURDON — Chasse au trésor
+   Supabase sync via REST API (lightweight, no build step)
    ========================================================= */
 
-:root {
-  --ocean-900: #0b3d5c;
-  --ocean-700: #14698c;
-  --ocean-500: #2a91b8;
-  --ocean-300: #7fc4dd;
-  --ocean-100: #d4ecf4;
-  --sand-100: #fbf6ec;
-  --sand-200: #f3e9d4;
-  --sand-300: #e6d3a8;
-  --white: #ffffff;
-  --green-700: #2f6b3a;
-  --green-500: #4a9d57;
-  --green-300: #a8d8b0;
-  --gold: #e8b04b;
-  --gold-dark: #c8902f;
-  --red: #c0392b;
-  --ink: #1c2b34;
-  --shadow: 0 10px 24px rgba(11, 61, 92, 0.18);
-  --shadow-sm: 0 4px 10px rgba(11, 61, 92, 0.12);
-  --radius: 18px;
-  --radius-sm: 12px;
+/* ---------- Config ---------- */
+const SUPABASE_URL = "https://vggojodlewoufmewpqut.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnZ29qb2RsZXdvdWZtZXdwcXV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MDUxMzcsImV4cCI6MjEwMDI4MTEzN30.-zrxYK8f7SysKKLOkzwF4RTIsRuFu-E1YHIN0627GzU";
+const REST_URL = SUPABASE_URL + "/rest/v1/validations";
+const REST_HEADERS = {
+  "apikey": SUPABASE_ANON_KEY,
+  "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+  "Content-Type": "application/json"
+};
+
+/* ---------- Local storage (team choice only) ---------- */
+const TEAM_KEY = "yvb-team";
+function getLocalTeam() { try { return localStorage.getItem(TEAM_KEY); } catch(e) { return null; } }
+function setLocalTeam(t) { try { localStorage.setItem(TEAM_KEY, t); } catch(e) {} }
+function removeLocalTeam() { try { localStorage.removeItem(TEAM_KEY); } catch(e) {} }
+
+/* ---------- Teams ---------- */
+const TEAMS = {
+  youinou: { name: "Team YOUINOU", emoji: "🤬", color: "#2f6b3a" },
+  bourdon: { name: "Team BOURDON", emoji: "🐝", color: "#2a91b8" }
+};
+
+/* ---------- Balises ---------- */
+const BALISES = [
+  { id: 1,  name: "Balise 1",  desc: "Les débuts", pts: 10, icon: "📍", code: "14782",
+    anecdote: "L'appartement de Romain a été le théâtre de nombreuses soirées mémorables entre amis. L'immeuble, lui, avait un peu moins de charme… Il y avait régulièrement du trafic dans le quartier. Un jour, alors que Laetitia était seule dans l'appartement, impossible de sortir : deux hommes étaient en train de se disputer dans le hall en se menaçant avec un couteau. 😬 Un souvenir un peu insolite… dont on préfère rire aujourd'hui !" },
+  { id: 2,  name: "Balise 2",  desc: "Rien à voir avec le lieu", pts: 10, icon: "📍", code: "25910",
+    anecdote: "Comme ennoncé, rien à voir avec le lieu mais juste l'anecdote. Notre première rencontre, notre premier baiser… c'était au Mylor, le soir où je fêtais mes 25 ans. Une soirée que je n'oublierai jamais, sans imaginer une seconde qu'elle marquerait le début de notre histoire. Le lendemain, alors que je me préparais à accueillir toute ma famille pour un grand repas, voilà qu'il débarque chez moi. Il sonne à la porte, habillé en short, en sandales et avec une veste en cuir… un look plutôt inattendu qui me fait encore sourire aujourd'hui ! Le timing était parfait… ou presque. 😆.En réalité, il savait déjà où j'habitais, puisque son meilleur ami était tout simplement mon voisin. Ce qui est drôle, c'est qu'avant cette fameuse soirée, on s'était déjà croisés plusieurs fois sans vraiment se connaître. Comme quoi, il fallait juste le bon moment pour que nos chemins se croisent vraiment." },
+  { id: 3,  name: "Balise 3",  desc: "Histoire Insolite...", pts: 15, icon: "📍", code: "38471",
+    anecdote: "Notre premier restaurant, c'était à L'Insolite. Un moment qu'on imaginait sûrement un peu romantique… jusqu'à ce qu'il commande un demi-homard ! Pour l'occasion, le serveur lui apporte un immense bavoir à enfiler avant de commencer son repas. Autant dire que pour un premier resto en amoureux, ce n'était pas vraiment le look le plus glamour ! 😆 On a éclaté de rire en le voyant avec son bavoir, et cette scène est restée gravée dans nos souvenirs. Finalement, ce sont souvent ces petits moments imprévus et un peu ridicules qui rendent une histoire encore plus belle." },
+  { id: 4,  name: "Balise 4",  desc: "l'adolescence", pts: 10, icon: "📍", code: "41056",
+    anecdote: "Avant de se connaître, ils avaient déjà un point commun sans vraiment le savoir : ils ont tous les deux été a Saint-Blaise. À l'époque, leurs chemins ne se sont pourtant jamais croisés… ou du moins, ils ne s'en souviennent pas. Il aura fallu attendre quelques années de plus pour que leurs routes se rejoignent enfin et que leur histoire commence. Un joli clin d'œil au destin, qui avait déjà semé quelques indices bien avant leur première rencontre." },
+  { id: 5,  name: "Balise 5",  desc: "Direction du bolomig, tu trouveras", pts: 15, icon: "📍", code: "52389",
+    anecdote: "Cette petite statue en a vu passer du monde au fil des Gras ! Chaque année, il assiste au défilé des costumes les plus farfelus, aux chorégraphies improvisées et à quelques retours un peu hésitants en fin de soirée. S'il pouvait parler, il aurait certainement des centaines d'anecdotes à raconter… ah ben tiens voici quelques photos",
+    photos: [
+      "images/balise5/image1.jpg",
+      "images/balise5/image2.jpg",
+      "images/balise5/image3.jpg",
+      "images/balise5/image4.jpg"
+    ] },
+  { id: 6,  name: "Balise 6",  desc: "à la pêche au moule", pts: 10, icon: "📍", code: "63104",
+    anecdote: "Bon ben là... vas y trouver des idées, aparement Mr YOUINOU R (pout ne pas confondre avec Christophe) était amateur de pêche, donc j'espèe que vous avez bien marché pour cette anecdote pas très utile, je sais même pas si c'était ici, il faudra demandé à l'interressé... mais bravo pour la balise trouvée" },
+  { id: 7,  name: "Balise 7",  desc: "des études...", pts: 20, icon: "📍", code: "74820",
+    anecdote: "Ici, vous trouverez les endroits où Laetitia a passé quelques années de sa vie... voili voilou... vous vous rendrez compte que je n'ai pas beaucoup d'histoire mais demander à vos capitaines, peut être qu'ils auront plus de souvenirs" },
+  { id: 8,  name: "Balise 8",  desc: "Y a t'il un chevalier dans la place", pts: 10, icon: "📍", code: "85631",
+    anecdote: "Bon, là, c’est juste pour le fun ! mais si tu réponds bien tu as les points" },
+  { id: 9,  name: "Balise exemple",  desc: "balise exemple", pts: 0, icon: "📍", code: "12345",
+    anecdote: "Youhou, c'est gagné, mais pas de points, c'est un exemple" }
+];
+
+/* ---------- Shared state (from Supabase) ---------- */
+let remoteValidations = []; // array of { team, balise_id, pts }
+let isOnline = false;
+let pollTimer = null;
+
+function teamScore(team) {
+  return remoteValidations.filter(v => v.team === team).reduce((s, v) => s + v.pts, 0);
+}
+function teamValidatedIds(team) {
+  return remoteValidations.filter(v => v.team === team).map(v => v.balise_id);
+}
+function teamValidatedCount(team) {
+  return remoteValidations.filter(v => v.team === team).length;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: var(--ink);
-  background:
-    radial-gradient(1200px 600px at 50% -10%, #bfe3ef 0%, transparent 60%),
-    linear-gradient(180deg, var(--sand-100) 0%, var(--sand-200) 100%);
-  background-attachment: fixed;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  min-height: 100dvh;
-  overflow-x: hidden;
-  overscroll-behavior: none;
-  -webkit-text-size-adjust: 100%;
-}
-
-/* Phone frame — centered on larger screens */
-.app {
-  max-width: 480px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  min-height: 100dvh;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
-  position: relative;
-  box-shadow: 0 0 40px rgba(11,61,92,0.08);
-}
-
-@media (min-width: 768px) {
-  body {
-    padding: 24px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* ---------- Supabase REST calls ---------- */
+async function fetchValidations() {
+  try {
+    const res = await fetch(REST_URL + "?select=team,balise_id,pts&order=created_at.asc", {
+      headers: REST_HEADERS
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    remoteValidations = Array.isArray(data) ? data : [];
+    setOnline(true);
+  } catch (e) {
+    setOnline(false);
   }
-  .app {
-    border-radius: 28px;
-    overflow: hidden;
-    min-height: auto;
-    height: min(820px, calc(100vh - 48px));
-    height: min(820px, calc(100dvh - 48px));
-    box-shadow: 0 20px 60px rgba(11,61,92,0.22);
+}
+
+async function insertValidation(team, baliseId, pts) {
+  const res = await fetch(REST_URL, {
+    method: "POST",
+    headers: REST_HEADERS,
+    body: JSON.stringify({ team, balise_id: baliseId, pts })
+  });
+  if (!res.ok && res.status !== 409) {
+    const txt = await res.text().catch(() => "");
+    throw new Error("Insert failed (" + res.status + "): " + txt);
+  }
+  return null;
+}
+
+async function deleteAllValidations() {
+  const res = await fetch(REST_URL + "?team=neq.__placeholder__", {
+    method: "DELETE",
+    headers: { ...REST_HEADERS }
+  });
+  if (!res.ok) throw new Error("Delete failed: " + res.status);
+}
+
+/* ---------- Polling ---------- */
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(fetchValidations, 4000);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function setOnline(status) {
+  if (isOnline === status) return;
+  isOnline = status;
+  updateSyncBadges();
+}
+
+function updateSyncBadges() {
+  document.querySelectorAll(".sync-badge").forEach(el => {
+    el.classList.toggle("online", isOnline);
+    el.classList.toggle("offline", !isOnline);
+    const dot = el.querySelector(".dot");
+    const text = el.childNodes[el.childNodes.length - 1];
+    if (text && text.nodeType === Node.TEXT_NODE) {
+      text.textContent = isOnline ? " Sync" : " Hors ligne";
+    }
+  });
+}
+
+/* ---------- Photo paths ---------- */
+function getPhotoPath(baliseId) {
+  return "images/balise" + baliseId + ".jpg";
+}
+
+async function checkPhotoExists(path) {
+  try {
+    const res = await fetch(path, { method: "HEAD" });
+    return res.ok;
+  } catch (e) {
+    return false;
   }
 }
 
-@media (min-width: 1024px) {
-  body { padding: 32px 0; }
-  .app { max-width: 520px; }
+/* ---------- Navigation ---------- */
+const screens = document.querySelectorAll(".screen");
+const navButtons = document.querySelectorAll(".nav button");
+let currentScreen = "home";
+
+function showScreen(id) {
+  currentScreen = id;
+  screens.forEach(s => s.classList.toggle("active", s.id === "screen-" + id));
+  navButtons.forEach(b => b.classList.toggle("active", b.dataset.screen === id));
+  if (id === "dashboard") renderDashboard();
+  if (id === "balises") renderBalises();
+  if (id === "settings") renderSettings();
+  window.scrollTo(0, 0);
 }
 
-/* Screens */
-.screen { display: none; padding: 20px 18px; animation: fadeIn .35s ease; }
-.screen.active { display: block; flex: 1 1 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+navButtons.forEach(b => b.addEventListener("click", () => {
+  const team = getLocalTeam();
+  if (!team) { toast("Choisis d'abord ton équipe 🧐"); return; }
+  showScreen(b.dataset.screen);
+}));
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* ---------- Home / Team ---------- */
+const team = getLocalTeam();
 
-/* Top bar */
-.topbar {
-  position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 18px 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.75));
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(11,61,92,0.08);
-}
-.topbar h1 { font-size: 16px; color: var(--ocean-900); font-weight: 800; letter-spacing: .2px; }
-.topbar .team-badge {
-  font-size: 13px; font-weight: 700; color: var(--ocean-700);
-  background: var(--sand-200); padding: 6px 12px; border-radius: 999px;
-  white-space: nowrap;
-}
+document.getElementById("btn-start").addEventListener("click", () => {
+  if (getLocalTeam()) showScreen("dashboard");
+  else showScreen("team");
+});
 
-/* Bottom nav */
-.nav {
-  flex-shrink: 0;
-  display: flex; justify-content: space-around;
-  background: rgba(255,255,255,0.96);
-  border-top: 1px solid rgba(11,61,92,0.08);
-  padding: 10px 6px calc(10px + env(safe-area-inset-bottom));
-  z-index: 30;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-.nav button {
-  border: none; background: transparent; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  font-size: 11px; color: var(--ocean-700); font-weight: 600;
-  padding: 6px 10px; border-radius: 12px;
-  transition: all .2s ease;
-  touch-action: manipulation;
-  -webkit-user-select: none; user-select: none;
-}
-.nav button .ico { font-size: 20px; }
-.nav button.active { color: var(--white); background: var(--ocean-700); box-shadow: var(--shadow-sm); }
-.nav button:hover:not(.active) { background: var(--sand-200); }
+let pickedTeam = null;
+document.querySelectorAll(".team-card").forEach(c => {
+  c.addEventListener("click", () => {
+    document.querySelectorAll(".team-card").forEach(x => x.classList.remove("selected"));
+    c.classList.add("selected");
+    pickedTeam = c.dataset.team;
+    document.getElementById("btn-confirm-team").disabled = false;
+  });
+});
 
-@media (min-width: 768px) {
-  .nav button { font-size: 12px; padding: 8px 16px; }
-  .nav button .ico { font-size: 22px; }
-}
+document.getElementById("btn-confirm-team").addEventListener("click", () => {
+  if (!pickedTeam) return;
+  setLocalTeam(pickedTeam);
+  toast("Bienvenue dans l'équipe " + TEAMS[pickedTeam].name + " " + TEAMS[pickedTeam].emoji);
+  showScreen("dashboard");
+});
 
-/* Buttons */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  border: none; cursor: pointer; font-weight: 700; font-size: 15px;
-  padding: 14px 20px; border-radius: 999px;
-  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
-  width: 100%;
-  touch-action: manipulation;
-  -webkit-user-select: none; user-select: none;
-}
-.btn-primary { background: var(--ocean-700); color: var(--white); box-shadow: var(--shadow); }
-.btn-primary:hover { background: var(--ocean-900); }
-.btn-primary:active { transform: scale(0.97); }
-.btn-green { background: var(--green-500); color: var(--white); box-shadow: var(--shadow); }
-.btn-green:hover { background: var(--green-700); }
-.btn-green:active { transform: scale(0.97); }
-.btn-gold { background: var(--gold); color: var(--ink); box-shadow: var(--shadow); }
-.btn-ghost { background: transparent; color: var(--ocean-700); border: 2px solid var(--ocean-500); }
-.btn-ghost:hover { background: var(--ocean-100); }
-.btn-danger { background: var(--red); color: var(--white); }
-.btn-danger:hover { background: #a0291f; }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
+/* ---------- Dashboard ---------- */
+function renderDashboard() {
+  const t = TEAMS[getLocalTeam()];
+  if (!t) return;
+  document.getElementById("dash-team-badge").textContent = t.emoji + " " + t.name;
+  document.getElementById("dash-emoji").textContent = t.emoji;
+  document.getElementById("dash-name").textContent = t.name;
 
-/* Cards */
-.card {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  margin-bottom: 14px;
-}
-.card h2 { font-size: 15px; color: var(--ocean-900); margin-bottom: 10px; }
+  const myTeam = getLocalTeam();
+  const validated = teamValidatedCount(myTeam);
+  const totalBalises = BALISES.length;
+  document.getElementById("dash-balises").textContent = validated + " / " + totalBalises + " balises";
+  document.getElementById("dash-score").textContent = teamScore(myTeam);
+  const pct = Math.round(validated / totalBalises * 100);
+  document.getElementById("dash-progress").style.width = pct + "%";
+  document.getElementById("dash-progress-label").textContent = "Progression : " + pct + "%";
 
-/* Home */
-#screen-home.active {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 30px 24px;
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-}
-.home-compass { font-size: 64px; animation: float 4s ease-in-out infinite; }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.home-title {
-  font-size: 34px; color: var(--ocean-900); font-weight: 900;
-  margin: 14px 0 6px; text-shadow: 0 2px 0 rgba(255,255,255,.6);
-  line-height: 1.15;
-}
-.home-sub { color: var(--ocean-700); font-weight: 600; margin-bottom: 28px; }
-.home-wave { width: 100%; margin-top: 30px; opacity: .7; }
+  const ranking = Object.keys(TEAMS).map(k => ({
+    key: k, ...TEAMS[k], score: teamScore(k)
+  })).sort((a, b) => b.score - a.score);
 
-@media (min-width: 768px) {
-  .home-compass { font-size: 80px; }
-  .home-title { font-size: 40px; }
-  .home-sub { font-size: 16px; }
+  const maxScore = Math.max(...ranking.map(r => r.score), 1);
+  const rankHtml = ranking.map((r, i) => {
+    const isWinner = i === 0 && r.score > 0;
+    const barPct = Math.round(r.score / maxScore * 100);
+    return `
+      <div class="rank-row ${isWinner ? 'winner' : ''}">
+        <span class="pos">${i + 1}.</span>
+        <span class="name">${r.emoji} ${r.name}</span>
+        <span class="pts">${r.score} pts</span>
+      </div>`;
+  }).join("");
+  document.getElementById("rank-list").innerHTML = rankHtml;
 }
 
-/* Team choice */
-.team-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
-.team-card {
-  border: 3px solid transparent; border-radius: var(--radius); padding: 22px 14px; text-align: center;
-  cursor: pointer; transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
-  background: var(--white); box-shadow: var(--shadow-sm);
-}
-.team-card:hover { transform: translateY(-2px); }
-.team-card:active { transform: scale(0.97); }
-.team-card .emoji { font-size: 44px; display: block; margin-bottom: 8px; }
-.team-card .name { font-weight: 800; color: var(--ocean-900); }
-.team-card.youinou { border-color: var(--green-500); }
-.team-card.bourdon { border-color: var(--ocean-500); }
-.team-card.selected {
-  transform: scale(1.02);
-  box-shadow: 0 0 0 4px rgba(232,176,75,.4), var(--shadow);
+/* ---------- Balises ---------- */
+function renderBalises() {
+  const myTeam = getLocalTeam();
+  if (!myTeam) return;
+  const t = TEAMS[myTeam];
+  document.getElementById("bal-team-badge").textContent = t.emoji + " " + t.name;
+  const validatedIds = teamValidatedIds(myTeam);
+
+  const html = BALISES.map(b => {
+    const done = validatedIds.includes(b.id);
+    let actions;
+    if (done) {
+      actions = `<div class="balise-actions"><div class="balise-status done">✓ Validée — +${b.pts} points</div><button class="btn btn-ghost" data-anecdote="${b.id}">📖 Voir l'anecdote</button></div>`;
+    } else {
+      actions = `<div class="balise-actions"><button class="btn btn-green" data-validate="${b.id}">Valider la balise</button></div>`;
+    }
+    return `
+      <div class="balise ${done ? 'done' : ''}" data-id="${b.id}">
+        <div class="balise-head">
+          <span class="ico">${b.icon}</span>
+          <span class="name">${b.name}</span>
+          <span class="pts">+${b.pts}</span>
+        </div>
+        <div class="balise-desc">${b.desc}</div>
+        ${actions}
+      </div>`;
+  }).join("");
+  document.getElementById("balise-list").innerHTML = html;
+
+  document.querySelectorAll("[data-validate]").forEach(btn => {
+    btn.addEventListener("click", () => validateBalise(parseInt(btn.dataset.validate)));
+  });
+  document.querySelectorAll("[data-anecdote]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const balise = BALISES.find(b => b.id === parseInt(btn.dataset.anecdote));
+      if (balise) showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer", balise.photos);
+    });
+  });
+
+  BALISES.forEach(b => {
+    if (validatedIds.includes(b.id)) return;
+    checkPhotoExists(getPhotoPath(b.id)).then(exists => {
+      if (!exists) return;
+      const card = document.querySelector(`.balise[data-id="${b.id}"] .balise-actions`);
+      if (!card) return;
+      const hintBtn = document.createElement("button");
+      hintBtn.className = "btn btn-ghost";
+      hintBtn.dataset.hint = b.id;
+      hintBtn.textContent = "📷 Indice";
+      hintBtn.addEventListener("click", () => openPhotoViewer(getPhotoPath(b.id)));
+      card.insertBefore(hintBtn, card.firstChild);
+    });
+  });
 }
 
-/* Dashboard */
-.dash-team { display: flex; align-items: center; gap: 14px; }
-.dash-team .emoji { font-size: 40px; }
-.dash-team .name { font-size: 20px; font-weight: 900; color: var(--ocean-900); }
-.dash-team .score { margin-left: auto; font-size: 28px; font-weight: 900; color: var(--gold); }
-.progress { height: 14px; background: var(--sand-300); border-radius: 999px; overflow: hidden; margin: 14px 0 6px; }
-.progress > div {
-  height: 100%; background: linear-gradient(90deg, var(--green-500), var(--green-300));
-  border-radius: 999px; transition: width .5s ease;
-}
-.progress-label { font-size: 13px; color: var(--ocean-700); font-weight: 600; }
-.rank-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 0; border-bottom: 1px dashed rgba(11,61,92,.15);
-}
-.rank-row:last-child { border-bottom: none; }
-.rank-row .pos { font-weight: 900; color: var(--gold); width: 24px; }
-.rank-row .name { flex: 1; font-weight: 700; color: var(--ocean-900); }
-.rank-row .pts { font-weight: 800; color: var(--ocean-700); }
-.rank-row.winner { background: linear-gradient(90deg, rgba(232,176,75,.12), transparent); border-radius: 8px; padding-left: 8px; }
+async function validateBalise(id) {
+  const myTeam = getLocalTeam();
+  if (!myTeam) return;
+  if (teamValidatedIds(myTeam).includes(id)) return;
 
-/* Balises */
-.balise {
-  background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
-  box-shadow: var(--shadow-sm);
-  border-left: 6px solid var(--sand-300); transition: all .25s ease;
-}
-.balise.done {
-  border-left-color: var(--green-500);
-  background: linear-gradient(180deg, #f4fbf5, #ffffff);
-}
-.balise-head { display: flex; align-items: center; gap: 10px; }
-.balise-head .ico { font-size: 26px; }
-.balise-head .name { font-weight: 800; color: var(--ocean-900); flex: 1; }
-.balise-head .pts {
-  font-weight: 800; color: var(--gold-dark); font-size: 13px;
-  background: var(--sand-200); padding: 4px 10px; border-radius: 999px;
-}
-.balise-desc { color: var(--ocean-700); font-size: 14px; margin: 8px 0 12px; line-height: 1.45; }
-.balise-status { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-.balise-status.pending { color: #a07b00; }
-.balise-status.done { color: var(--green-700); }
-.balise-actions { display: flex; gap: 8px; flex-direction: column; }
-.balise-actions .btn { width: 100%; }
+  const balise = BALISES.find(b => b.id === id);
+  const code = await promptModal(balise.icon, "Balise " + balise.id, "Entre le code à 5 chiffres affiché à la balise :", "Code à 5 chiffres");
+  if (code === null) return;
+  if (code !== balise.code) {
+    toast("❌ Code incorrect");
+    return;
+  }
 
-/* Modal */
-.modal-backdrop {
-  position: fixed; inset: 0; background: rgba(11,61,92,.5);
-  display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
-  backdrop-filter: blur(4px);
-}
-.modal-backdrop.show { display: flex; animation: fadeIn .2s ease; }
-.modal {
-  background: var(--white); border-radius: var(--radius); padding: 24px;
-  max-width: 360px; width: 100%; text-align: center;
-  box-shadow: var(--shadow); animation: pop .3s ease;
-}
-@keyframes pop { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal h3 { color: var(--ocean-900); font-size: 20px; margin-bottom: 8px; }
-.modal p { color: var(--ocean-700); margin-bottom: 18px; line-height: 1.5; }
-.modal .modal-emoji { font-size: 48px; display: block; margin-bottom: 10px; }
-.modal-actions { display: flex; gap: 10px; }
-.modal-actions .btn { flex: 1; }
-.modal-input {
-  width: 100%; padding: 12px; font-size: 22px; text-align: center; letter-spacing: 6px;
-  border: 2px solid var(--ocean-500); border-radius: 12px; margin-bottom: 14px; outline: none;
-  transition: border-color .2s ease;
-}
-.modal-input:focus { border-color: var(--ocean-700); }
+  try {
+    await insertValidation(myTeam, balise.id, balise.pts);
+    await fetchValidations();
+    launchConfetti();
 
-/* Modal photo gallery */
-.modal-photos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-.modal-photos:empty { display: none; }
-.modal-photos .modal-photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 10px;
-  cursor: zoom-in;
-  box-shadow: var(--shadow-sm);
-  transition: transform .15s ease;
-  background: var(--sand-200);
-}
-.modal-photos .modal-photo:hover { transform: scale(1.03); }
-.modal-photos .modal-photo:first-child:nth-last-child(1) {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 9;
+    if (balise.id === 8) {
+      await showBalise8Quiz();
+      renderBalises();
+      renderDashboard();
+      bumpScore();
+      return;
+    }
+
+    const wantAnecdote = await showModal("🎉", "Bravo !", `+${balise.pts} points pour ${TEAMS[myTeam].name} !`, "Anecdotes sur Romain et Laetitia");
+    if (wantAnecdote) {
+      showModal("📖", `Anecdote — ${balise.name}`, balise.anecdote, "Fermer", balise.photos);
+    }
+    renderBalises();
+    renderDashboard();
+    bumpScore();
+  } catch (e) {
+    toast("Erreur de sync: " + e.message);
+  }
 }
 
-/* Toast */
-.toast {
-  position: fixed; bottom: 90px; left: 50%;
-  transform: translateX(-50%) translateY(20px); z-index: 200;
-  background: var(--ocean-900); color: white; padding: 12px 20px; border-radius: 999px;
-  font-weight: 700; font-size: 14px;
-  box-shadow: var(--shadow); opacity: 0; pointer-events: none;
-  transition: all .3s ease; max-width: 90%; text-align: center;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* ---------- Balise 8 quiz ---------- */
+function showBalise8Quiz() {
+  return new Promise(resolve => {
+    const overlay = document.createElement("div");
+    overlay.className = "quiz-overlay";
 
-@media (min-width: 768px) {
-  .toast { bottom: 40px; }
-}
+    const photo = document.createElement("img");
+    photo.src = "images/balise8/image1.jpg";
+    photo.className = "quiz-photo";
+    photo.alt = "Qui est sur la photo ?";
+    overlay.appendChild(photo);
 
-/* Confetti */
-.confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 150; }
-.confetti-piece { position: absolute; top: -10px; opacity: 0.95; animation: confettiFall linear forwards; }
-@keyframes confettiFall {
-  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
+    const question = document.createElement("div");
+    question.className = "quiz-question";
+    question.textContent = "Qui est sur la photo ? (vous avez 10s pour répondre)";
+    overlay.appendChild(question);
 
-/* Settings */
-.hidden-reset { display: none; }
+    const timerBar = document.createElement("div");
+    timerBar.className = "quiz-timer-bar";
+    const timerFill = document.createElement("div");
+    timerFill.className = "quiz-timer-fill";
+    timerBar.appendChild(timerFill);
+    overlay.appendChild(timerBar);
 
-/* Score bump animation */
-.bump { animation: bump .5s ease; }
-@keyframes bump {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.3); color: var(--green-500); }
-  100% { transform: scale(1); }
-}
+    const btnContainer = document.createElement("div");
+    btnContainer.className = "quiz-buttons";
+    overlay.appendChild(btnContainer);
 
-.section-title {
-  font-size: 18px; font-weight: 900; color: var(--ocean-900);
-  margin: 6px 0 14px; display: flex; align-items: center; gap: 8px;
-}
-.hint { font-size: 13px; color: var(--ocean-700); margin-bottom: 14px; line-height: 1.5; }
+    const answers = ["Un mec trop bizarre", "Romain", "Niamor le chelou"];
+    const buttons = [];
 
-/* Balise photo indice */
-.balise-photo {
-  width: 100%; border-radius: var(--radius-sm); margin: 10px 0;
-  box-shadow: var(--shadow-sm); cursor: zoom-in; display: block;
-  background: var(--sand-200);
-}
-.balise-photo-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-  background: var(--sand-200); color: var(--ocean-700); border: 2px dashed var(--ocean-500);
-  padding: 10px 14px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
-  margin-top: 8px; cursor: pointer; transition: background .2s ease;
-}
-.balise-photo-btn:hover { background: var(--ocean-100); }
+    answers.forEach(text => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-dodge-btn";
+      btn.textContent = text;
+      btn.type = "button";
+      buttons.push(btn);
+      btnContainer.appendChild(btn);
+    });
 
-/* Photo viewer */
-.photo-viewer {
-  position: fixed; inset: 0; background: rgba(11,61,92,.92); z-index: 300;
-  display: none; align-items: center; justify-content: center; padding: 16px;
-}
-.photo-viewer.show { display: flex; animation: fadeIn .2s ease; }
-.photo-viewer img {
-  max-width: 100%; max-height: 90vh; max-height: 90dvh;
-  border-radius: 12px; box-shadow: var(--shadow);
-}
-.photo-viewer .close {
-  position: absolute; top: 18px; right: 18px; color: white; font-size: 28px;
-  cursor: pointer; background: rgba(0,0,0,.3); width: 44px; height: 44px;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  border: none; transition: background .2s ease;
-}
-.photo-viewer .close:hover { background: rgba(0,0,0,.5); }
+    function dodgeBtn(btn) {
+      const overlayRect = overlay.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const padding = 20;
+      const maxX = overlayRect.width - btnRect.width - padding;
+      const maxY = overlayRect.height - btnRect.height - padding;
+      const newX = padding + Math.random() * Math.max(maxX - padding, 1);
+      const newY = padding + Math.random() * Math.max(maxY - padding, 1);
+      btn.style.position = "absolute";
+      btn.style.left = newX + "px";
+      btn.style.top = newY + "px";
+    }
 
-/* Indices admin */
-.indice-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 0; border-bottom: 1px dashed rgba(11,61,92,.15);
-}
-.indice-row:last-child { border-bottom: none; }
-.indice-row .num { font-weight: 900; color: var(--gold); width: 28px; }
-.indice-row .info { flex: 1; min-width: 0; }
-.indice-row .info .name { font-weight: 800; color: var(--ocean-900); font-size: 14px; }
-.indice-row .info .state { font-size: 12px; color: var(--ocean-700); }
-.indice-row .thumb {
-  width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: var(--sand-200);
-}
-.indice-row .thumb.empty {
-  display: flex; align-items: center; justify-content: center;
-  color: var(--ocean-500); font-size: 22px;
+    buttons.forEach(btn => {
+      btn.addEventListener("pointerenter", () => dodgeBtn(btn));
+      btn.addEventListener("touchstart", e => { e.preventDefault(); dodgeBtn(btn); }, { passive: false });
+      btn.addEventListener("click", () => dodgeBtn(btn));
+    });
+
+    document.body.appendChild(overlay);
+
+    timerFill.style.transition = "width 10s linear";
+    requestAnimationFrame(() => { timerFill.style.width = "0%"; });
+
+    const timer = setTimeout(() => {
+      overlay.remove();
+      toast("t'inquiètes les points sont comptabilisés, tu as trouvé la balise 😉");
+      setTimeout(() => resolve(), 2600);
+    }, 10000);
+
+    overlay.dataset.timer = timer;
+  });
 }
 
-/* Loading spinner */
-.spinner {
-  display: inline-block; width: 20px; height: 20px;
-  border: 3px solid var(--ocean-300); border-top-color: var(--ocean-700);
-  border-radius: 50%; animation: spin .8s linear infinite;
+function bumpScore() {
+  const el = document.getElementById("dash-score");
+  if (el) { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Connection status badge */
-.sync-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+/* ---------- Photo viewer ---------- */
+const photoViewer = document.getElementById("photo-viewer");
+const photoViewerImg = document.getElementById("photo-viewer-img");
+function openPhotoViewer(src) {
+  photoViewerImg.src = src;
+  photoViewer.classList.add("show");
 }
-.sync-badge.online { background: rgba(74,157,87,.15); color: var(--green-700); }
-.sync-badge.offline { background: rgba(192,57,43,.15); color: var(--red); }
-.sync-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+document.getElementById("photo-viewer-close").addEventListener("click", () => photoViewer.classList.remove("show"));
+photoViewer.addEventListener("click", e => { if (e.target === photoViewer) photoViewer.classList.remove("show"); });
 
-/* Responsive tweaks for very small screens */
-@media (max-width: 360px) {
-  .home-title { font-size: 28px; }
-  .team-card { padding: 16px 10px; }
-  .team-card .emoji { font-size: 36px; }
-  .dash-team .name { font-size: 17px; }
-  .dash-team .score { font-size: 24px; }
+/* ---------- Settings ---------- */
+function renderSettings() {
+  const myTeam = getLocalTeam();
+  if (!myTeam) return;
 }
+
+document.getElementById("btn-reveal-reset").addEventListener("click", () => {
+  document.getElementById("reset-zone").classList.toggle("hidden-reset");
+});
+
+document.getElementById("btn-reset").addEventListener("click", async () => {
+  const code = await promptModal("🔒", "Réinitialisation", "Entrez le code pour confirmer la réinitialisation.", "Code à 4 chiffres");
+  if (code === null) return;
+  if (code !== "0306") {
+    toast("Code incorrect");
+    return;
+  }
+  try {
+    await deleteAllValidations();
+    await fetchValidations();
+  } catch (e) {
+    toast("Erreur lors de la réinitialisation");
+    return;
+  }
+  removeLocalTeam();
+  toast("Partie réinitialisée");
+  showScreen("home");
+});
+
+/* ---------- Modal & Toast ---------- */
+const modal = document.getElementById("modal");
+const modalInput = document.getElementById("modal-input");
+const modalCancel = document.getElementById("modal-cancel");
+let modalResolve = null;
+
+function _setModal(emoji, title, text, okLabel, showInput, showCancel, placeholder, photos) {
+  document.getElementById("modal-emoji").textContent = emoji;
+  document.getElementById("modal-title").textContent = title;
+  document.getElementById("modal-text").textContent = text;
+  document.getElementById("modal-ok").textContent = okLabel;
+  const photosContainer = document.getElementById("modal-photos");
+  photosContainer.innerHTML = "";
+  if (photos && photos.length) {
+    photos.forEach((src, i) => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.className = "modal-photo";
+      img.loading = "lazy";
+      img.alt = "Photo " + (i + 1);
+      img.addEventListener("click", () => openPhotoViewer(src));
+      photosContainer.appendChild(img);
+    });
+  }
+  modalInput.style.display = showInput ? "block" : "none";
+  modalInput.value = "";
+  modalInput.placeholder = placeholder || "";
+  modalCancel.style.display = showCancel ? "inline-flex" : "none";
+  modal.classList.add("show");
+  if (showInput) setTimeout(() => modalInput.focus(), 80);
+  return new Promise(r => { modalResolve = r; });
+}
+
+function showModal(emoji, title, text, okLabel, photos) { return _setModal(emoji, title, text, okLabel || "Super !", false, false, null, photos); }
+function confirmModal(text) { return _setModal("⚠️", "Confirmer", text, "Oui", false, true); }
+function promptModal(emoji, title, text, placeholder) { return _setModal(emoji, title, text, "Valider", true, true, placeholder); }
+
+document.getElementById("modal-ok").addEventListener("click", () => {
+  modal.classList.remove("show");
+  if (modalResolve) {
+    if (modalInput.style.display !== "none") modalResolve(modalInput.value.trim());
+    else modalResolve(true);
+    modalResolve = null;
+  }
+});
+modalCancel.addEventListener("click", () => {
+  modal.classList.remove("show");
+  if (modalResolve) { modalResolve(null); modalResolve = null; }
+});
+
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+/* ---------- Confetti ---------- */
+function launchConfetti() {
+  const layer = document.getElementById("confetti");
+  const colors = ["#e8b04b", "#2a91b8", "#4a9d57", "#fbf6ec", "#14698c"];
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (1.8 + Math.random() * 1.5) + "s";
+    p.style.animationDelay = (Math.random() * 0.4) + "s";
+    p.style.width = (6 + Math.random() * 8) + "px";
+    p.style.height = (10 + Math.random() * 10) + "px";
+    p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    layer.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }
+}
+
+/* ---------- Init ---------- */
+async function init() {
+  await fetchValidations();
+  startPolling();
+
+  if (getLocalTeam()) {
+    showScreen("dashboard");
+  } else {
+    showScreen("home");
+  }
+}
+
+init();
