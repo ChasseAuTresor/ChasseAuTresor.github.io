@@ -333,7 +333,7 @@ function showBalise8Quiz() {
 
     const question = document.createElement("div");
     question.className = "quiz-question";
-    question.textContent = "Qui est sur la photo ? (vous avez 10s pour répondre)";
+    question.textContent = "Qui est sur la photo ? (vous avez 15s pour répondre)";
     overlay.appendChild(question);
 
     const timerBar = document.createElement("div");
@@ -360,13 +360,13 @@ function showBalise8Quiz() {
     });
 
     function dodgeBtn(btn) {
-      const overlayRect = overlay.getBoundingClientRect();
+      const zoneRect = btnContainer.getBoundingClientRect();
       const btnRect = btn.getBoundingClientRect();
-      const padding = 20;
-      const maxX = overlayRect.width - btnRect.width - padding;
-      const maxY = overlayRect.height - btnRect.height - padding;
-      const newX = padding + Math.random() * Math.max(maxX - padding, 1);
-      const newY = padding + Math.random() * Math.max(maxY - padding, 1);
+      const padding = 8;
+      const maxX = Math.max(zoneRect.width - btnRect.width - padding * 2, 0);
+      const maxY = Math.max(zoneRect.height - btnRect.height - padding * 2, 0);
+      const newX = padding + Math.random() * maxX;
+      const newY = padding + Math.random() * maxY;
       btn.style.position = "absolute";
       btn.style.left = newX + "px";
       btn.style.top = newY + "px";
@@ -380,14 +380,14 @@ function showBalise8Quiz() {
 
     document.body.appendChild(overlay);
 
-    timerFill.style.transition = "width 10s linear";
+    timerFill.style.transition = "width 15s linear";
     requestAnimationFrame(() => { timerFill.style.width = "0%"; });
 
     const timer = setTimeout(() => {
       overlay.remove();
       toast("t'inquiètes les points sont comptabilisés, tu as trouvé la balise 😉");
       setTimeout(() => resolve(), 2600);
-    }, 10000);
+    }, 15000);
 
     overlay.dataset.timer = timer;
   });
@@ -526,5 +526,5 @@ async function init() {
     showScreen("home");
   }
 }
- 
+
 init();
