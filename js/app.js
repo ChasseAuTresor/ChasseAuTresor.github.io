@@ -526,5 +526,5 @@ async function init() {
     showScreen("home");
   }
 }
-
+ 
 init();
